@@ -1,5 +1,4 @@
-num_classes: 7
+num_classes: 7 # numero di classi diverse (il risultato)
 img_size: 224 # model height
 model_path: modelTRANSFORMER_VIT
-extract_attention: true
-save_att_heatmap: False
+model_name: vit_base_patch16_224.augreg_in21k
