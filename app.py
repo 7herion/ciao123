@@ -10,37 +10,24 @@ def classify_image_list():
     '''Endpoint per la classificazione di una lista di immagini'''
 
     request_image_list = request.json
-    result_list: list = []
 
     for item in request_image_list:
-        item_id     = item['id']
-        item_path   = item['filename'] # dovrei avere il path completo già nel payload
+        item_path   = item['filename']
 
-        item_bounding_box_list: list = []
         for bounding_box in item['bb_box']:
-            bbox_coordinates = ast.literal_eval(bounding_box['box']) # mi arrivano in formato stringa come salvati su db
+            bbox_coordinates = ast.literal_eval(bounding_box['box'])
 
             prediction  = predict_classification(item_path, bbox_coordinates)
-            pred_class  = prediction['classification']
+            pred_id     = prediction['id']
+            pred_label  = prediction['label']
             pred_conf   = prediction['confidence']
 
-            item_bounding_box_list.append({
-                'id': bounding_box['id'],
-			    'box': bbox_coordinates, # TODO: da decidere se ritornare come list oppure come stringa
-			    'category': bounding_box['category'],
-			    'classification': pred_class, # TODO: da matchare con le classi esistenti su DB
-			    'confidence': pred_conf,
-            })
+            bounding_box['classification']  = pred_id
+            bounding_box['class_label']     = pred_label
+            bounding_box['confidence']      = pred_conf
+            bounding_box['model_name']      = prediction['model_name']
 
-        # BASEPATH è ./data01/wildlife_media/
-
-        result_list.append({
-            'id':       item_id,
-            'bb_box':   item_bounding_box_list,
-            'filename': item_path,
-        })
-
-    return jsonify(result_list)
+    return jsonify(request_image_list)
 
 
 if __name__ == '__main__':

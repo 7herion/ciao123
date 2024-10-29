@@ -1,5 +1,6 @@
 import cv2
 from PIL import Image
+import yaml
 
 
 def getImageBBoxArea(image_path: str, bounding_box_coordinates: list) -> Image:
@@ -17,3 +18,13 @@ def getImageBBoxArea(image_path: str, bounding_box_coordinates: list) -> Image:
 
     return Image.fromarray(region_of_interest)
     # return Image.fromarray(I) # Se leggo l'immagine completa diminuisce la percentuale di affidabilità
+
+
+def getClassificationId(common_name: str) -> int:
+    '''Legge l'ID della classificazione dal file YAML di mapping'''
+
+    with open('config/classification_mapping.yaml', 'r') as class_mappings:
+        available_classes = yaml.safe_load(class_mappings)
+    item_info = available_classes[common_name] # TODO: Potrebbe non esistere -> da gestire
+
+    return item_info['classification_id']

@@ -1,0 +1,28 @@
+Domestic Cattle:
+  available_classes: 1
+  classification_id: 44
+  common_name: Domestic cattle
+Eurasian Badger:
+  available_classes: 1
+  classification_id: 25
+  common_name: Eurasian badger
+European Hare:
+  available_classes: 1
+  classification_id: 21
+  common_name: European hare
+Grey Wolf:
+  available_classes: 1
+  classification_id: 11
+  common_name: Grey wolf
+Red Deer:
+  available_classes: 1
+  classification_id: 15
+  common_name: Red deer
+Red Fox:
+  available_classes: 1
+  classification_id: 40
+  common_name: Red fox
+Wild Boar:
+  available_classes: 1
+  classification_id: 39
+  common_name: Wild boar

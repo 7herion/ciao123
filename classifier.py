@@ -3,15 +3,14 @@ import torch
 import torchvision.transforms as transforms
 from ForwardWrapper import forward_wrapper
 import yaml
-import numpy as np
-from utils import getImageBBoxArea
+from utils import getImageBBoxArea, getClassificationId
 
 class VitModel(torch.nn.Module):
     def __init__(self, model_name, num_classes):
         super(VitModel, self).__init__()
         self.modelVit = timm.create_model(model_name, pretrained=True, num_classes=num_classes)
         data_config = timm.data.resolve_model_data_config(self.modelVit)
-        self.transforms = timm.data.create_transform(**data_config, is_training=False)
+        self.transforms = timm.data.create_transform(**data_config, is_training=False) # Nota
 
         self.modelVit.blocks[-1].attn.forward = forward_wrapper(self.modelVit.blocks[-1].attn)
 
@@ -41,7 +40,7 @@ def preprocess_image(image_path, img_size, bb_params):
     return x
 
 def main(image_path: str, bb_params: list):
-    
+
     # Define the path to the YAML config file
     config_path = 'config/config.yaml'
 
@@ -61,9 +60,14 @@ def main(image_path: str, bb_params: list):
     out = model(x)
     _, preds = torch.max(out, 1)
 
-    classes = ['Domestic Cattle', 'Eurasian Badger', 'European Hare', 'Grey Wolf', 'Red Deer', 'Red Fox', 'Wild Boar']
+    with open('config/sample_space.yaml', 'r') as sample_space:
+        available_classes = yaml.safe_load(sample_space)
+    classes = available_classes["sample_space"]
+    # classes = ['Domestic Cattle', 'Eurasian Badger', 'European Hare', 'Grey Wolf', 'Red Deer', 'Red Fox', 'Wild Boar']
+
     predicted_class = classes[preds.cpu().numpy()[0]]
+    classificationId = getClassificationId(predicted_class)
     confidence = round(torch.nn.functional.softmax(out, dim=1).max().item(), 2)
     # da vedere nel caso in cui fallisce la classificazione
 
-    return {'classification': predicted_class, 'confidence': confidence}
+    return {'id': classificationId, 'label': predicted_class, 'confidence': confidence, 'model_name': model_name}
