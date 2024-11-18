@@ -1,4 +1,5 @@
-# import torch 
+''' The following code is from: https://github.com/lcultrera/WildCapture '''
+
 
 def forward_wrapper(attn_obj):
     def forward_wrap(x):
@@ -15,6 +16,7 @@ def forward_wrapper(attn_obj):
         x = (attn @ v).transpose(1, 2).reshape(B, N, C)
         x = attn_obj.proj(x)
         x = attn_obj.proj_drop(x)
-        return x
-    return forward_wrap
 
+        return x
+
+    return forward_wrap
