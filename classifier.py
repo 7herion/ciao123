@@ -3,7 +3,9 @@ import torch
 import torchvision.transforms as transforms
 from ForwardWrapper import forward_wrapper
 import yaml
-from utils import getImageBBoxArea, getClassificationId
+from utils import getImageBBoxArea
+from functools import lru_cache
+
 
 class VitModel(torch.nn.Module):
     def __init__(self, model_name, num_classes):
@@ -18,6 +20,8 @@ class VitModel(torch.nn.Module):
         # torch.cuda.empty_cache()
         return self.modelVit(x)
 
+
+@lru_cache(maxsize=3)
 def load_model(model_path, model_name, num_classes):
     DEVICE = 'cuda' if torch.cuda.is_available() else 'mps' if torch.backends.mps.is_available() else 'cpu'
 
@@ -26,6 +30,7 @@ def load_model(model_path, model_name, num_classes):
     model = model.to(DEVICE).eval()
 
     return model
+
 
 def preprocess_image(image_path, img_size, bb_params):
     image = getImageBBoxArea(image_path, bb_params)
@@ -38,6 +43,19 @@ def preprocess_image(image_path, img_size, bb_params):
     x = transform(image)
     x = x.unsqueeze(0)
     return x
+
+
+def getClassificationId(common_name: str) -> int | None:
+    '''Legge l'ID della classificazione dal file YAML di mapping, ritorna None se non trova una corrispondenza'''
+
+    with open('config/classification_mapping.yaml', 'r') as class_mappings:
+        available_classes = yaml.safe_load(class_mappings)
+    item_info = available_classes[common_name]
+
+    if item_info is None:
+        return None
+    return item_info.get('classification_id')
+
 
 def main(image_path: str, bb_params: list):
 
